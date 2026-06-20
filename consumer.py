@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 # Kafka se connect karo
 consumer = KafkaConsumer(
     'patient-vitals',
-    bootstrap_servers=['localhost:9092'],
+    bootstrap_servers=['localhost:29092'],
     auto_offset_reset='earliest',
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
