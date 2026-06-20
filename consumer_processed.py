@@ -8,9 +8,9 @@ consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
-print("📊 Processed Data Consumer starting...")
-print("Flink se processed data padh raha hoon...\n")
+print("Processed Data Consumer starting...")
+print("Reading processed data from Flink...\n")
 
 for message in consumer:
     data = message.value
-    print(f"✅ Processed: {data}")
+    print(f"Processed: {data}")

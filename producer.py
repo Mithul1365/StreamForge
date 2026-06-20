@@ -4,7 +4,7 @@ import random
 from datetime import datetime
 from kafka import KafkaProducer
 
-# Kafka se connect karo
+# Connect to Kafka
 producer = KafkaProducer(
     bootstrap_servers=['localhost:29092'],
     value_serializer=lambda x: json.dumps(x).encode('utf-8')
@@ -23,22 +23,22 @@ def generate_patient_data(patient_id):
         'temperature': round(random.uniform(97.0, 99.0), 1),
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
-    
-    # 10% chance anomaly aaye
+
+    # 10% chance of anomaly
     if random.random() < 0.1:
         data['heart_rate'] = random.randint(130, 160)
         data['spo2'] = random.randint(80, 88)
-        print(f"🚨 ANOMALY generated for {patient_id}!")
-    
+        print(f"ANOMALY generated for {patient_id}!")
+
     return data
 
-print("🏥 Patient Monitor Producer starting...")
-print("Kafka mein data bhej raha hoon - Ctrl+C se band karo\n")
+print("Patient Monitor Producer starting...")
+print("Sending data to Kafka - press Ctrl+C to stop\n")
 
 while True:
     for patient_id in patients:
         data = generate_patient_data(patient_id)
         producer.send('patient-vitals', value=data)
-        print(f"✅ Sent: {data}")
-    
+        print(f"Sent: {data}")
+
     time.sleep(2)
