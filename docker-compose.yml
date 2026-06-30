@@ -1,9 +1,11 @@
 services:
+
   kafka:
     image: confluentinc/cp-kafka:latest
     ports:
       - "9092:9092"
       - "29092:29092"
+
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -17,27 +19,106 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
   flink-jobmanager:
-    image: flink:1.17.1-scala_2.12-java11
+    build:
+      context: .
+      dockerfile: Dockerfile.flink
+
+    container_name: streamforge-flink-jobmanager
+
+    command: /start-flink.sh
+
     ports:
       - "8081:8081"
-    command: jobmanager
+
     environment:
-      FLINK_PROPERTIES: "jobmanager.rpc.address: flink-jobmanager"
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+
+    volumes:
+      - ./flink_jobs:/opt/flink/jobs
+
+    depends_on:
+      - kafka
 
   flink-taskmanager:
-    image: flink:1.17.1-scala_2.12-java11
+    build:
+      context: .
+      dockerfile: Dockerfile.flink
+
+    container_name: streamforge-flink-taskmanager
+
     command: taskmanager
-    environment:
-      FLINK_PROPERTIES: "jobmanager.rpc.address: flink-jobmanager"
+
     depends_on:
       - flink-jobmanager
 
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+
+    volumes:
+      - ./flink_jobs:/opt/flink/jobs
+
   minio:
     image: minio/minio:latest
+
+    command: server /data --console-address ":9001"
+
     ports:
       - "9000:9000"
       - "9001:9001"
+
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
+
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer
+
+    container_name: streamforge-producer
+
+    depends_on:
+      - kafka
+
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+
+    container_name: streamforge-consumer
+
+    depends_on:
+      - kafka
+
+    restart: unless-stopped
+
+  lstm:
+    build:
+      context: .
+      dockerfile: Dockerfile.lstm
+
+    container_name: streamforge-lstm
+
+    depends_on:
+      - kafka
+
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile.dashboard
+
+    container_name: streamforge-dashboard
+
+    depends_on:
+      - kafka
+
+    ports:
+      - "5000:5000"
+
+    restart: unless-stopped

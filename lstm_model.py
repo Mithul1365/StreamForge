@@ -52,81 +52,123 @@ def train_model():
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
     print("Training the model...")
+
     epochs = 100
+
     for epoch in range(epochs):
         optimizer.zero_grad()
+
         output = model(tensor_data)
+
         loss = criterion(output, tensor_data)
+
         loss.backward()
+
         optimizer.step()
 
         if (epoch + 1) % 20 == 0:
-            print(f"   Epoch {epoch+1}/{epochs} - Loss: {loss.item():.4f}")
+            print(f"Epoch {epoch+1}/{epochs} - Loss: {loss.item():.4f}")
 
     print("Model training complete!\n")
+
     return model, mean, std
 
 # ============================================
-# STEP 4: Check for anomaly
+# STEP 4: Check anomaly
 # ============================================
 def check_anomaly(model, mean, std, patient_data, threshold=1.5):
+
     sample = np.array([
-        patient_data['heart_rate'],
-        patient_data['spo2'],
-        patient_data['bp_systolic'],
-        patient_data['temperature']
+        patient_data["heart_rate"],
+        patient_data["spo2"],
+        patient_data["bp_systolic"],
+        patient_data["temperature"]
     ], dtype=np.float32)
 
     normalized = (sample - mean) / std
+
     tensor_input = torch.tensor(normalized).unsqueeze(0).unsqueeze(1)
 
     model.eval()
+
     with torch.no_grad():
+
         reconstructed = model(tensor_input)
+
         error = torch.mean((tensor_input - reconstructed) ** 2).item()
 
     is_anomaly = error > threshold
+
     return is_anomaly, error
 
 # ============================================
-# STEP 5: Live monitoring from Kafka
+# STEP 5: Live Monitoring
 # ============================================
 def live_monitor(model, mean, std):
+
     consumer = KafkaConsumer(
-        'patient-vitals-processed',
-        bootstrap_servers=['localhost:29092'],
-        auto_offset_reset='latest',
-        value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+        "patient-vitals-processed",
+        bootstrap_servers=["kafka:9092"],
+        auto_offset_reset="latest",
+        value_deserializer=lambda x: json.loads(x.decode("utf-8"))
     )
 
     producer = KafkaProducer(
-        bootstrap_servers=['localhost:29092'],
-        value_serializer=lambda x: json.dumps(x).encode('utf-8')
+        bootstrap_servers=["kafka:9092"],
+        value_serializer=lambda x: json.dumps(x).encode("utf-8")
     )
 
-    print("Live monitoring started - reading from Kafka...\n")
+    print("Live Monitoring Started...\n")
 
     for message in consumer:
+
         patient_data = message.value
-        is_anomaly, error = check_anomaly(model, mean, std, patient_data)
+
+        is_anomaly, error = check_anomaly(
+            model,
+            mean,
+            std,
+            patient_data
+        )
 
         if is_anomaly:
+
             alert = {
-                'patient_id': patient_data['patient_id'],
-                'heart_rate': patient_data['heart_rate'],
-                'spo2': patient_data['spo2'],
-                'reconstruction_error': round(error, 4),
-                'timestamp': patient_data['timestamp'],
-                'severity': 'CRITICAL'
+
+                "patient_id": patient_data["patient_id"],
+
+                "heart_rate": patient_data["heart_rate"],
+
+                "spo2": patient_data["spo2"],
+
+                "bp_systolic": patient_data["bp_systolic"],
+
+                "temperature": patient_data["temperature"],
+
+                "timestamp": patient_data["timestamp"],
+
+                "reconstruction_error": round(error, 4),
+
+                "severity": "CRITICAL"
+
             }
-            producer.send('alerts', value=alert)
-            print(f"ALERT SENT - {alert}")
+
+            producer.send("alerts", value=alert)
+
+            print(f"ALERT SENT -> {alert}")
+
         else:
-            print(f"Normal - {patient_data['patient_id']}: HR={patient_data['heart_rate']}, Error={error:.4f}")
+
+            print(
+                f"Normal -> {patient_data['patient_id']} | "
+                f"Error={error:.4f}"
+            )
 
 # ============================================
 # MAIN
 # ============================================
 if __name__ == "__main__":
+
     model, mean, std = train_model()
+
     live_monitor(model, mean, std)

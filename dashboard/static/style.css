@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #f4f7fb;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+    width: 90%;
+    margin: 40px auto;
+}
+
+h1 {
+    text-align: center;
+    color: #1f4e79;
+    margin-bottom: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+th {
+    background: #1f4e79;
+    color: white;
+    padding: 15px;
+    font-size: 18px;
+}
+
+td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background: #f2f2f2;
+}
+
+.normal {
+    color: green;
+    font-weight: bold;
+}
+
+.critical {
+    color: red;
+    font-weight: bold;
+}

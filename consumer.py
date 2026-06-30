@@ -1,22 +1,32 @@
 import json
+import time
 from kafka import KafkaConsumer
 
-# Connect to Kafka
-consumer = KafkaConsumer(
-    'patient-vitals',
-    bootstrap_servers=['localhost:29092'],
-    auto_offset_reset='earliest',
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
-)
+# Wait until Kafka is ready
+while True:
+    try:
+        consumer = KafkaConsumer(
+            "patient-vitals",
+            bootstrap_servers="kafka:9092",
+            auto_offset_reset="earliest",
+            value_deserializer=lambda x: json.loads(x.decode("utf-8"))
+        )
+        print("Connected to Kafka!")
+        break
+    except Exception:
+        print("Waiting for Kafka...")
+        time.sleep(5)
 
-print("Patient Monitor Consumer starting...")
-print("Reading data from Kafka...\n")
+print("Consumer Started...")
 
 for message in consumer:
     data = message.value
 
-    # Check normal vs anomaly
-    if data['heart_rate'] > 120 or data['spo2'] < 90:
-        print(f"ALERT! Patient {data['patient_id']} - HR: {data['heart_rate']}, SpO2: {data['spo2']}%")
+    if data["heart_rate"] > 120 or data["spo2"] < 90:
+        print(
+            f"ALERT -> {data['patient_id']} | HR={data['heart_rate']} | SpO2={data['spo2']}"
+        )
     else:
-        print(f"Normal - Patient {data['patient_id']} - HR: {data['heart_rate']}, SpO2: {data['spo2']}%")
+        print(
+            f"NORMAL -> {data['patient_id']} | HR={data['heart_rate']} | SpO2={data['spo2']}"
+        )
