@@ -7,7 +7,7 @@ import boto3
 # Connect to MinIO (S3-compatible storage)
 s3_client = boto3.client(
     's3',
-    endpoint_url='http://localhost:9000',
+    endpoint_url='http://minio:9000',
     aws_access_key_id='minioadmin',
     aws_secret_access_key='minioadmin'
 )
@@ -32,7 +32,7 @@ def save_batch_to_minio(batch, batch_number):
 def main():
     consumer = KafkaConsumer(
         'patient-vitals-processed',
-        bootstrap_servers=['localhost:29092'],
+        bootstrap_servers=['kafka:9092'],
         auto_offset_reset='latest',
         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
     )

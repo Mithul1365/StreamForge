@@ -151,3 +151,18 @@ services:
       - "5000:5000"
 
     restart: unless-stopped
+
+  ###################################################################
+
+  storage-writer:
+    build:
+      context: .
+      dockerfile: Dockerfile.storage
+
+    container_name: streamforge-storage
+
+    depends_on:
+      - kafka
+      - minio
+
+    restart: unless-stopped    
