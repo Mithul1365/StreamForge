@@ -1,39 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>StreamForge Healthcare Dashboard</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+    href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
+
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <h1>🏥 StreamForge Healthcare Dashboard</h1>
+<h1>
+🏥 StreamForge Healthcare Dashboard
+</h1>
 
-        <table id="patientTable">
-            <thead>
-                <tr>
-                    <th>Patient ID</th>
-                    <th>Heart Rate ❤️</th>
-                    <th>SpO₂ 🫁</th>
-                    <th>Blood Pressure</th>
-                    <th>Temperature 🌡</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
+<div id="alertBanner" class="banner">
 
-            <tbody id="tableBody">
+🚨 CRITICAL PATIENT DETECTED
 
-            </tbody>
+</div>
 
-        </table>
+<div class="cards">
 
-    </div>
+<div class="card">
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+<h2>Total</h2>
+
+<h1 id="total">0</h1>
+
+</div>
+
+<div class="card">
+
+<h2>Normal</h2>
+
+<h1 id="normal">0</h1>
+
+</div>
+
+<div class="card">
+
+<h2>Critical</h2>
+
+<h1 id="critical">0</h1>
+
+</div>
+
+<div class="card">
+
+<h2>Updated</h2>
+
+<h1 id="updated">--</h1>
+
+</div>
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Patient</th>
+
+<th>Heart Rate</th>
+
+<th>SpO₂</th>
+
+<th>BP</th>
+
+<th>Temperature</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tableBody">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script src="/static/script.js"></script>
 
 </body>
+
 </html>

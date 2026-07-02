@@ -5,14 +5,24 @@ USER root
 RUN apt-get update && \
     apt-get install -y python3 python3-pip wget && \
     ln -sf /usr/bin/python3 /usr/bin/python && \
-    pip3 install apache-flink==1.17.1 kafka-python
+    rm -rf /var/lib/apt/lists/*
 
-RUN wget -P /opt/flink/lib \
+RUN pip3 install --upgrade pip
+
+RUN pip3 install \
+    apache-flink==1.17.1 \
+    kafka-python \
+    numpy \
+    pandas \
+    pyarrow
+
+RUN wget -O /opt/flink/lib/flink-sql-connector-kafka-1.17.1.jar \
 https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka/1.17.1/flink-sql-connector-kafka-1.17.1.jar
 
 WORKDIR /opt/flink
 
 COPY flink_jobs /opt/flink/jobs
+
 COPY start-flink.sh /start-flink.sh
 
 RUN chmod +x /start-flink.sh

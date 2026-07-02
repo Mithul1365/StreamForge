@@ -1,20 +1,27 @@
 #!/bin/bash
 
+ROLE=$1
+
 echo "=================================="
-echo "Starting Flink JobManager..."
+echo "Starting Flink Container"
+echo "Role: $ROLE"
 echo "=================================="
 
-# Start Flink JobManager
+if [ "$ROLE" = "taskmanager" ]; then
+    echo "Starting TaskManager..."
+    exec /docker-entrypoint.sh taskmanager
+fi
+
+echo "Starting JobManager..."
 /docker-entrypoint.sh jobmanager &
 
-echo "Waiting 20 seconds for Flink..."
-sleep 20
+echo "Waiting for JobManager..."
+sleep 30
 
 echo "Submitting Patient Processor Job..."
 
 flink run -py /opt/flink/jobs/patient_processor.py
 
-echo "Flink Job Submitted Successfully."
+echo "Job Submitted."
 
-# Keep container alive
 wait

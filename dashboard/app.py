@@ -4,13 +4,17 @@ from kafka.errors import NoBrokersAvailable
 import json
 import threading
 import time
+from datetime import datetime
 
 app = Flask(__name__)
 
 latest_patients = {}
+last_updated = ""
 
 
 def kafka_listener():
+    global last_updated
+
     while True:
         try:
             print("Connecting to Kafka...")
@@ -20,24 +24,27 @@ def kafka_listener():
                 bootstrap_servers=["kafka:9092"],
                 auto_offset_reset="latest",
                 enable_auto_commit=True,
-                consumer_timeout_ms=1000,
-                api_version_auto_timeout_ms=10000,
                 value_deserializer=lambda m: json.loads(m.decode("utf-8"))
             )
 
-            print("✅ Dashboard connected to Kafka!")
+            print("Dashboard Connected to Kafka!")
 
-            while True:
-                for message in consumer:
-                    data = message.value
-                    latest_patients[data["patient_id"]] = data
+            for message in consumer:
+
+                data = message.value
+
+                latest_patients[data["patient_id"]] = data
+
+                last_updated = datetime.now().strftime("%H:%M:%S")
 
         except NoBrokersAvailable:
-            print("❌ Kafka not ready. Retrying in 5 seconds...")
+
+            print("Kafka not ready...")
             time.sleep(5)
 
         except Exception as e:
-            print("Dashboard Error:", e)
+
+            print(e)
             time.sleep(5)
 
 
@@ -48,9 +55,39 @@ def home():
 
 @app.route("/patients")
 def patients():
-    return jsonify(list(latest_patients.values()))
+
+    patients = list(latest_patients.values())
+
+    total = len(patients)
+
+    critical = sum(
+        1 for p in patients
+        if p["status"] == "CRITICAL"
+    )
+
+    normal = total - critical
+
+    return jsonify({
+
+        "patients": patients,
+
+        "summary": {
+
+            "total": total,
+            "critical": critical,
+            "normal": normal,
+            "updated": last_updated
+
+        }
+
+    })
 
 
 if __name__ == "__main__":
-    threading.Thread(target=kafka_listener, daemon=True).start()
+
+    threading.Thread(
+        target=kafka_listener,
+        daemon=True
+    ).start()
+
     app.run(host="0.0.0.0", port=5000)
