@@ -64,8 +64,7 @@ def kafka_listener():
 
                 enable_auto_commit=True,
 
-                value_deserializer=lambda m:
-                json.loads(m.decode("utf-8"))
+                value_deserializer=lambda m: json.loads(m.decode("utf-8"))
 
             )
 
@@ -74,25 +73,19 @@ def kafka_listener():
             for message in consumer:
 
                 data = message.value
+                patient_id = data["patient_id"]
+                latest_patients[patient_id] = data
 
-                latest_patients[
-                    data["patient_id"]
-                ] = data
-
-                last_updated = datetime.now().strftime(
-                    "%H:%M:%S"
-                )
+                last_updated = datetime.now().strftime("%H:%M:%S")
 
         except NoBrokersAvailable:
 
             print("Kafka not ready...")
-
             time.sleep(5)
 
         except Exception as e:
 
             print("Dashboard Error :", e)
-
             time.sleep(5)
 # ----------------------------------------------------
 # Read Patient History from MinIO

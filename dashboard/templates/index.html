@@ -11,14 +11,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
-
 <body>
+    <div id="toastNotification" class="toast-notification">
+
+    <span id="toastMessage">
+        🚨 Critical Patient
+    </span>
+
+</div>
 
 <div class="container">
 
 <h1>
 🏥 StreamForge Healthcare Dashboard
 </h1>
+
 
 <div id="alertBanner" class="banner">
 
@@ -64,19 +71,71 @@
 <div class="charts">
 
     <div class="chart-card">
-        <h2>❤️ Heart Rate</h2>
+        <h2 id="heartTitle">
+          ❤️ Heart Rate (P001)
+        </h2>
         <canvas id="heartChart"></canvas>
     </div>
 
     <div class="chart-card">
-        <h2>🫁 SpO₂</h2>
+        <h2 id="spo2Title">
+            🫁 SpO₂ (P001)
+        </h2>
         <canvas id="spo2Chart"></canvas>
     </div>
 
     <div class="chart-card">
-        <h2>🌡 Temperature</h2>
+        <h2 id="tempTitle">
+            🌡 Temperature (P001)
+         </h2>
         <canvas id="tempChart"></canvas>
     </div>
+
+</div>
+<div class="patient-details">
+
+    <h2>👤 Selected Patient</h2>
+
+    <p><b>Patient ID :</b> <span id="detailId">-</span></p>
+
+    <p><b>Status :</b> <span id="detailStatus">-</span></p>
+
+    <p><b>❤️ Heart Rate :</b> <span id="detailHeart">-</span></p>
+
+    <p><b>🫁 SpO₂ :</b> <span id="detailSpo2">-</span></p>
+
+    <p><b>🩺 BP :</b> <span id="detailBP">-</span></p>
+
+    <p><b>🌡 Temperature :</b> <span id="detailTemp">-</span></p>
+
+    <p><b>🕒 Last Updated :</b> <span id="detailTime">-</span></p>
+ <div class="risk-card">
+
+    <h2>🤖 AI Risk Score</h2>
+
+    <div class="risk-percent" id="riskPercent">
+        0%
+    </div>
+
+    <div class="progress">
+
+        <div class="progress-bar" id="riskBar"></div>
+
+    </div>
+
+    <h3 id="riskStatus">
+        LOW RISK
+    </h3>
+
+</div>
+</div>
+<div class="search-box">
+
+    <input
+        type="text"
+        id="searchPatient"
+        placeholder="🔍 Search Patient (P001, P002...)"
+        onkeyup="searchPatient()">
 
 </div>
 <table>
