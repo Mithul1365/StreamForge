@@ -1,141 +1,172 @@
 # StreamForge
 
-**A cloud-native, real-time ICU patient monitoring platform** that ingests live patient vitals via Apache Kafka, processes streams using Apache Flink, detects anomalies using an LSTM Autoencoder (PyTorch), and exposes results via a FastAPI service.
+A real-time healthcare monitoring platform built using **Apache Kafka, Apache Flink, Flask, Docker and MinIO**. StreamForge continuously monitors patient vital signs, detects critical conditions, stores historical patient records and provides a live dashboard with charts, alerts and analytics.
 
 ---
 
 ## Why this project is different
 
-Most student data projects are batch ETL pipelines that load a CSV into Postgres. StreamForge is a real-time streaming system:
+Most student data projects are batch ETL pipelines that process static CSV files. StreamForge is a real-time streaming system that:
 
-- Ingests continuous patient vital sign data using **Kafka**
-- Processes and validates data in real-time with **Apache Flink**
-- Detects abnormal patient conditions using an **LSTM Autoencoder** (unsupervised anomaly detection)
-- Exposes live alerts through a **FastAPI** REST endpoint
-- Designed to run 24/7 with containerized infrastructure (**Docker**)
+- Ingests continuous patient vital sign data using **Apache Kafka**
+- Processes and validates streaming data using **Apache Flink**
+- Detects abnormal patient conditions using an **LSTM Autoencoder**
+- Stores patient history in **MinIO**
+- Provides a live **Flask Dashboard** with charts, alerts, analytics and patient history
+- Runs inside **Docker** containers for easy deployment
 
 ---
 
 ## Architecture
 
+```
 Patient Sensor Data
-
-|
-
-v
-
-[ Kafka Topic: patient-vitals ]
-
-|
-
-v
-
-[ Apache Flink Job ]
-
-Validates incoming data
-Cleans and enriches records
-Tags status as NORMAL / CRITICAL
-
-|
-
-v
-
-[ Kafka Topic: patient-vitals-processed ]
-
-|
-
-v
-
-[ LSTM Autoencoder Model ]
-Learns normal patient vital patterns
-Flags anomalies via reconstruction error
-
-|
-
-v
-
-[ Kafka Topic: alerts ]
-
-|
-
-v
-
-[ FastAPI Service ]
-/health  -> system health check
-/alerts  -> live critical alerts
-
-
+        │
+        ▼
+Kafka Topic (patient-vitals)
+        │
+        ▼
+Apache Flink
+(Data Cleaning + Validation + Status Detection)
+        │
+        ▼
+Kafka Topic (patient-vitals-processed)
+        │
+        ├────────────────────┐
+        ▼                    ▼
+Flask Dashboard         Storage Writer
+(Live Monitoring)            │
+                             ▼
+                          MinIO Storage
+                    (Patient History)
+```
 
 ---
 
 ## Tech Stack
 
-| Component          | Technology                 |
-|---------------------|------------------------------|
-| Message Streaming   | Apache Kafka                |
-| Stream Processing   | Apache Flink (PyFlink)      |
-| Anomaly Detection    | LSTM Autoencoder (PyTorch)  |
-| API Layer            | FastAPI                     |
-| Containerization     | Docker / Docker Compose     |
+| Component  | Technology          |
+| ---------- | ------------------- |
+| Frontend   | HTML CSS JavaScript |
+| Backend    | Flask               |
+| Streaming  | Apache Kafka        |
+| Processing | Apache Flink        |
+| Storage    | MinIO               |
+| ML         | LSTM Autoencoder    |
+| Charts     | Chart.js            |
+| Container  | Docker              |
+
+---
+
+## Features
+
+- Live patient monitoring dashboard
+- Real-time vital sign streaming
+- Apache Kafka message streaming
+- Apache Flink stream processing
+- AI Risk Score calculation
+- Critical patient alerts
+- Historical patient data visualization
+- Download patient report (CSV)
+- Notify Doctor feature
+- Emergency Alert button
+- Patient Search
+- Live charts using Chart.js
+- MinIO cloud storage
+- Dockerized deployment
 
 ---
 
 ## How It Works
 
-1. **Producer** (`producer.py`) simulates real-time ICU patient vitals (heart rate, SpO2, blood pressure, temperature) and publishes them to Kafka.
-2. **Flink job** (`flink_jobs/patient_processor.py`) consumes the raw vitals, validates and cleans them, tags each record's status, and republishes to a processed topic.
-3. **LSTM Autoencoder** (`lstm_model.py`) is trained on normal patient vitals, learning what a "normal" pattern looks like. It continuously consumes the processed stream and calculates a reconstruction error for every reading — a high error means the pattern doesn't match anything normal, indicating a possible medical emergency.
-4. Detected anomalies are published to an `alerts` Kafka topic.
-5. **FastAPI** (`api.py`) exposes a `/alerts` endpoint that surfaces the most recent critical alerts in real time.
+1. **Producer (`producer.py`)** simulates real-time patient vitals (Heart Rate, SpO₂, Blood Pressure and Temperature).
+
+2. **Apache Kafka** receives the live patient data.
+
+3. **Apache Flink** validates, cleans and processes every incoming record before publishing it to a processed Kafka topic.
+
+4. **Storage Writer** stores processed patient history inside **MinIO**.
+
+5. **Flask Dashboard** consumes processed patient data from Kafka and updates the dashboard every **2 seconds** with:
+   - Live Charts
+   - AI Risk Score
+   - Critical Alerts
+   - Patient History
+   - Analytics
 
 ---
 
 ## Setup & Running Locally
 
 ### Prerequisites
+
 - Docker Desktop
-- Python 3.10+
 
-### 1. Start infrastructure
+### Start the Project
+
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
-### 2. Submit the Flink job
-```bash
-docker cp flink_jobs/patient_processor.py streamforge-flink-jobmanager-1:/opt/flink/
-docker exec streamforge-flink-jobmanager-1 flink run -py /opt/flink/patient_processor.py
+---
+
+## Open Services
+
+### Dashboard
+
+```
+http://localhost:5000
 ```
 
-### 3. Install Python dependencies
-```bash
-pip install kafka-python torch numpy fastapi uvicorn
+### Apache Flink Dashboard
+
+```
+http://localhost:8081
 ```
 
-### 4. Run the pipeline (separate terminals)
-```bash
-python producer.py
-python lstm_model.py
-uvicorn api:app --reload
+### MinIO Console
+
+```
+http://localhost:9001
 ```
 
-### 5. Check live alerts
-Visit: `http://127.0.0.1:8000/alerts`
+Username
+
+```
+minioadmin
+```
+
+Password
+
+```
+minioadmin
+```
 
 ---
 
 ## Project Status
 
-- [x] Kafka producer & consumer
-- [x] Apache Flink stream processing job
-- [x] LSTM Autoencoder anomaly detection
-- [x] FastAPI alert endpoint
-- [ ] Apache Iceberg / S3 storage layer
-- [ ] Kubernetes deployment
-- [ ] Grafana monitoring dashboard
+- ✅ Kafka Producer
+- ✅ Kafka Consumer
+- ✅ Apache Flink Stream Processing
+- ✅ Flask Live Dashboard
+- ✅ Live Charts
+- ✅ AI Risk Score
+- ✅ Critical Patient Alerts
+- ✅ Patient History (MinIO)
+- ✅ Download Patient Report
+- ✅ Docker Deployment
+
+### Future Enhancements
+
+- Kubernetes Deployment
+- Apache Iceberg Storage
+- Grafana Monitoring
+- Real IoT Sensor Integration
+- Email / SMS Alert Notifications
 
 ---
 
 ## Author
 
-Built as part of a two-developer collaborative project covering real-time data engineering and platform engineering.
+Developed as an academic real-time healthcare monitoring project using **Apache Kafka, Apache Flink, Flask, Docker and MinIO**.
