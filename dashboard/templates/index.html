@@ -92,6 +92,30 @@
     </div>
 
 </div>
+<div class="analytics">
+
+    <div class="analytics-card">
+        <h3>❤️ Avg Heart Rate</h3>
+        <h1 id="avgHeart">0</h1>
+    </div>
+
+    <div class="analytics-card">
+        <h3>🫁 Avg SpO₂</h3>
+        <h1 id="avgSpo2">0</h1>
+    </div>
+
+    <div class="analytics-card">
+        <h3>🌡 Avg Temperature</h3>
+        <h1 id="avgTemp">0</h1>
+    </div>
+
+    <div class="analytics-card">
+        <h3>🚨 Critical Events</h3>
+        <h1 id="criticalCount">0</h1>
+    </div>
+
+</div>
+
 <div class="patient-details">
 
     <h2>👤 Selected Patient</h2>
@@ -109,6 +133,34 @@
     <p><b>🌡 Temperature :</b> <span id="detailTemp">-</span></p>
 
     <p><b>🕒 Last Updated :</b> <span id="detailTime">-</span></p>
+
+    
+
+    
+<div class="action-card">
+    <h2>🚑 Emergency Actions</h2>
+
+         <button class="action-btn alert"
+             onclick="sendAlert()">
+
+              🚨 Send Emergency Alert
+         </button>
+
+         <button class="action-btn doctor"
+              onclick="notifyDoctor()">
+
+               👨‍⚕ Notify Doctor
+
+           </button>
+
+          <button class="action-btn report"
+                 onclick="downloadReport()">
+
+                 📄 Download Report
+
+             </button>
+
+</div>
  <div class="risk-card">
 
     <h2>🤖 AI Risk Score</h2>
@@ -138,6 +190,16 @@
         onkeyup="searchPatient()">
 
 </div>
+
+<div class="event-log">
+
+    <h2>📋 Live Activity Log</h2>
+
+    <div id="eventLog">
+
+    </div>
+
+</div>
 <table>
 
 <thead>
@@ -165,6 +227,12 @@
 </tbody>
 
 </table>
+<footer>
+
+    StreamForge Healthcare Monitoring System |
+    Apache Kafka • Apache Flink • Flask • MinIO
+
+</footer>
 
 </div>
 

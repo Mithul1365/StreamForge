@@ -1,10 +1,12 @@
 let toastTimer = null;
 let selectedPatient = "P001";
+let eventLogs = [];
 
 const heartData = [];
 const spo2Data = [];
 const tempData = [];
 const labels = [];
+
 
 const heartChart = new Chart(
     document.getElementById("heartChart"),
@@ -126,6 +128,7 @@ async function loadPatients() {
                     " | 🫁 SpO₂ : " +
                      patient.spo2
                  );
+                 addLog("🚨 " + patient.patient_id + " became CRITICAL");
 
                  alertedPatients.push(patient.patient_id);
 
@@ -338,13 +341,25 @@ document.getElementById("detailTemp").innerHTML =
 
 document.getElementById("detailTime").innerHTML =
     latest.timestamp;
-    labels.length = 0;
-    heartData.length = 0;
-    spo2Data.length = 0;
-    tempData.length = 0;
+  labels.length = 0;
+   heartData.length = 0;
+   spo2Data.length = 0;
+   tempData.length = 0;
 
-    last20.forEach(record => {
+let avgHeart = 0;
+let avgSpo2 = 0;
+let avgTemp = 0;
+let criticalEvents = 0;
 
+last20.forEach(record => {
+
+    avgHeart += record.heart_rate;
+    avgSpo2 += record.spo2;
+    avgTemp += record.temperature;
+
+    if(record.status === "CRITICAL"){
+        criticalEvents++;
+    }
     labels.push(record.timestamp);
 
     heartData.push(record.heart_rate);
@@ -354,6 +369,19 @@ document.getElementById("detailTime").innerHTML =
     tempData.push(record.temperature);
 
 });
+
+
+
+
+avgHeart = (avgHeart / last20.length).toFixed(1);
+avgSpo2 = (avgSpo2 / last20.length).toFixed(1);
+avgTemp = (avgTemp / last20.length).toFixed(1);
+
+document.getElementById("avgHeart").innerHTML = avgHeart;
+document.getElementById("avgSpo2").innerHTML = avgSpo2;
+document.getElementById("avgTemp").innerHTML = avgTemp;
+document.getElementById("criticalCount").innerHTML = criticalEvents;
+
 
     heartChart.update();
     spo2Chart.update();
@@ -386,5 +414,47 @@ function searchPatient() {
         }
 
     });
+
+}
+
+function sendAlert() {
+
+    alert("🚨 Emergency Alert Sent Successfully!");
+
+}
+
+function notifyDoctor() {
+
+    addLog("👨‍⚕ Doctor notified");
+
+    alert("👨‍⚕ Doctor has been notified.");
+
+}
+
+function downloadReport() {
+
+    addLog("📄 Report downloaded for " + selectedPatient);
+
+    window.location.href =
+        "/download/" + selectedPatient;
+
+}
+
+function addLog(message) {
+
+    const time = new Date().toLocaleTimeString();
+
+    eventLogs.unshift(time + " - " + message);
+
+    if(eventLogs.length > 10){
+
+        eventLogs.pop();
+
+    }
+
+    document.getElementById("eventLog").innerHTML =
+        eventLogs.map(log =>
+            `<div class="log-item">${log}</div>`
+        ).join("");
 
 }

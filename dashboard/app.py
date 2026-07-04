@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify
 from kafka import KafkaConsumer
 from kafka.errors import NoBrokersAvailable
+from flask import send_file
+import csv
 
 import boto3
 import pandas as pd
@@ -210,7 +212,33 @@ def history(patient_id):
 
     return jsonify(
         read_patient_history(patient_id)
-    )            
+    )  
+
+@app.route("/download/<patient_id>")
+def download(patient_id):
+
+    history = read_patient_history(patient_id)
+
+    if len(history) == 0:
+        return "No Data Found"
+
+    filename = patient_id + "_report.csv"
+
+    with open(filename, "w", newline="") as file:
+
+        writer = csv.DictWriter(
+            file,
+            fieldnames=history[0].keys()
+        )
+
+        writer.writeheader()
+
+        writer.writerows(history)
+
+    return send_file(
+        filename,
+        as_attachment=True
+    )          
 # ----------------------------------------------------
 # Main
 # ----------------------------------------------------
