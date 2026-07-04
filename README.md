@@ -170,3 +170,14 @@ minioadmin
 ## Author
 
 Developed as an academic real-time healthcare monitoring project using **Apache Kafka, Apache Flink, Flask, Docker and MinIO**.
+
+
+## Dashboard Preview
+
+### Live Healthcare Dashboard
+
+![Dashboard 1](images/dashboard1.png)
+
+### Patient Monitoring & Analytics
+
+![Dashboard 2](images/dashboard2.png)
